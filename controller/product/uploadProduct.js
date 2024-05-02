@@ -1,5 +1,6 @@
 const uploadProductPermission = require("../../helpers/permission");
 const productModel = require("../../models/productModel");
+const userModel = require("../../models/userModel");
 
 async function UploadProductController(req, res) {
     try {
@@ -9,13 +10,17 @@ async function UploadProductController(req, res) {
             throw new Error("Permission denied");
         }
         
-        // Extract user ID from the request
         const userId = req.body.userId || sessionUserId;
 
-        // Create the product object with user's ID
+        const user = await userModel.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+
         const productData = {
             ...req.body,
-            userId: userId
+            userId: userId,
+            userName: user.name 
         };
 
         const uploadProduct = new productModel(productData);
